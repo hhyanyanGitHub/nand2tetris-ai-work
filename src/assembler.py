@@ -1,12 +1,14 @@
-"""Simple Hack Assembler (Python)
+"""简易 Hack 汇编器（Python）
 
-Provides assemble_text and assemble_file utilities.
+提供 assemble_text 和 assemble_file 工具函数。
+支持符号表、A 指令与 C 指令的翻译。
+终版定型（2025-12-31）。hhy
 """
 from __future__ import annotations
 import re
 from typing import List, Dict
 
-# Predefined symbols
+# 预定义符号
 PREDEFINED = {
     **{f'R{i}': i for i in range(16)},
     'SP': 0,
@@ -19,11 +21,11 @@ PREDEFINED = {
 }
 
 COMP_TABLE = {
-    # a=0
+    # a=0（使用 A 寄存器）
     '0': '0101010','1': '0111111','-1':'0111010','D':'0001100','A':'0110000',
     '!D':'0001101','!A':'0110001','-D':'0001111','-A':'0110011','D+1':'0011111','A+1':'0110111',
     'D-1':'0001110','A-1':'0110010','D+A':'0000010','D-A':'0010011','A-D':'0000111','D&A':'0000000','D|A':'0010101',
-    # a=1 (M instead of A)
+    # a=1（使用 M 寄存器）
     'M':'1110000','!M':'1110001','-M':'1110011','M+1':'1110111','M-1':'1110010','D+M':'1000010','D-M':'1010011','M-D':'1000111','D&M':'1000000','D|M':'1010101',
 }
 
@@ -60,7 +62,7 @@ class Assembler:
                 if label not in self.symbols:
                     self.symbols[label] = rom_addr
             else:
-                # A or C instruction
+                # A 或 C 指令
                 rom_addr += 1
 
     def _parse_A(self, symbol: str) -> int:
@@ -68,7 +70,7 @@ class Assembler:
             return int(symbol)
         if symbol in self.symbols:
             return self.symbols[symbol]
-        # new variable
+        # 新变量
         addr = self.next_variable
         self.symbols[symbol] = addr
         self.next_variable += 1
@@ -88,13 +90,13 @@ class Assembler:
             jump = parts[1].strip()
         comp_bits = COMP_TABLE.get(comp)
         if comp_bits is None:
-            raise ValueError(f'Unknown comp: {comp}')
+            raise ValueError(f'未知的 comp: {comp}')
         dest_bits = DEST_TABLE.get(dest)
         if dest_bits is None:
-            raise ValueError(f'Unknown dest: {dest}')
+            raise ValueError(f'未知的 dest: {dest}')
         jump_bits = JUMP_TABLE.get(jump)
         if jump_bits is None:
-            raise ValueError(f'Unknown jump: {jump}')
+            raise ValueError(f'未知的 jump: {jump}')
         return '111' + comp_bits + dest_bits + jump_bits
 
     def assemble_text(self, src: str) -> List[str]:

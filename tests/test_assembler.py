@@ -1,6 +1,6 @@
 from src.assembler import assemble_text
 
-ADD_PROG = """// Adds 1 + 1
+ADD_PROG = """// 计算 1 + 1
 @2
 D=A
 @3
@@ -33,7 +33,7 @@ M=0
 M=M+1
 """
     out = assemble_text(src)
-    # first A-instruction should allocate i at address 16
+    # 第一个 A 指令应将 i 分配到地址 16
     assert out[0] == '0000000000010000'
-    # third A-instruction references sum, allocated after i -> address 17
-    assert out[2] == '0000000000010001'
+    # 第三个 A 指令引用 sum，应分配到 i 之后的地址 17
+    assert out[2] == '0000000000010001' 
